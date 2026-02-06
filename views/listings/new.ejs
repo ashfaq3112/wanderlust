@@ -1,0 +1,51 @@
+<% layout("/layouts/boilerplate")%>
+<body>
+    <h3>Create a new Listing</h3>
+    <div class="row">
+        <div class="col-8 offset-2">
+            <br>
+            <form method="post" action="/listings" class="needs-validation" novalidate>
+                <div class="mb-3">
+                    <label for="title" class="form-label">Title</label>
+                    <input name="listing[title]" id="title" placeholder="Add a title" type="text" class="form-control" required>
+                    <div class="invalid-feedback" id="title-error-empty">Please provide a title</div>
+                    <div class="invalid-feedback" id="title-error-numbers" style="display:none;">Please provide a valid title (cannot be only numbers)</div>
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea name="listing[description]" id="description" class="form-control" required></textarea>
+                    <div class="invalid-feedback" id="description-error-empty">Please provide a description</div>
+                    <div class="invalid-feedback" id="description-error-numbers" style="display:none;">Please provide a valid description (cannot be only numbers)</div>
+                </div>
+                <div class="mb-3">
+                    <label for="image" class="form-label">Image Link</label>
+                    <input name="listing[image][url]" id="image" placeholder="enter image URL/link" class="form-control">
+                    <div class="invalid-feedback">Please provide a image url</div>     
+                </div>
+                <div class="row">
+                    <div class="mb-3 col-4">
+                        <label for="price" class="form-label">Price</label>
+                        <input name="listing[price]" id="price" placeholder="enter price" type="number" class="form-control" min="0" step="0.01" required>
+                        <div class="invalid-feedback">Please provide a valid price (cannot be negative)</div>
+                    </div>
+                
+                    <div class="mb-3 col-md-8">
+                        <label for="country" class="form-label">Country</label>
+                        <input name="listing[country]" id="country" placeholder="India" type="text" class="form-control" required>
+                        <div class="invalid-feedback" id="country-error-empty">Please provide a country</div>
+                        <div class="invalid-feedback" id="country-error-numbers" style="display:none;">Please provide a valid country (cannot be only numbers)</div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="location" class="form-label">Location</label>
+                    <input name="listing[location]" id="location" placeholder="Bengaluru" type="text" class="form-control" required>
+                    <div class="invalid-feedback" id="location-error-empty">Please provide a location</div>
+                    <div class="invalid-feedback" id="location-error-numbers" style="display:none;">Please provide a valid location (cannot be only numbers)</div>
+                </div>
+                <button type="submit" class="btn btn-dark btn-add">Add</button>
+            </form>
+            <br></br>
+        </div>
+    </div>
+</body>
+</html>
