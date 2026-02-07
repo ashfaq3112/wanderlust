@@ -3,10 +3,10 @@
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <div class="mb-3">
-                <h3 class="mb-0">Listing Details</h3>
+                <h3 class="mb-0"><%= listing.title || "Untitled Listing" %></h3>
             </div>
 
-            <div class="card">
+            <div class="card listing-card">
                 <img
                     class="card-img-top show-img"
                     src="<%= listing.image && listing.image.url ? listing.image.url : 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1200' %>"
@@ -15,15 +15,15 @@
                 >
                 <div class="card-body">
                     <p class="card-text">
-                        <b><%= listing.title %></b>
+                        <%= listing.description || "No description available" %>
                         <br>
-                        <%= listing.description %>
+                        <% if (listing.price) { %>
+                            &#8377;<%= listing.price.toLocaleString("en-IN")%>
+                        <% } %>
                         <br>
-                        &#8377;<%= listing.price.toLocaleString("en-IN")%>
+                        <%= listing.location || "" %>
                         <br>
-                        <%= listing.location %>
-                        <br>
-                        <%= listing.country %>
+                        <%= listing.country || "" %>
                     </p>
                 </div>
             </div>
@@ -35,6 +35,123 @@
                     <button class="btn btn-danger btn-sm" type="submit">Delete</button>
                 </form>
             </div>
+        </div>
+    </div>
+    <div class="mt-4">
+        <h3> Leave a Review</h3>
+        <form action="/listings/<%= listing._id %>/reviews" method="post" novalidate class="needs-validation">
+            <div class="mb-3">
+                <label for="comment" class="form-label">Comment</label>
+                <textarea name="review[comment]" id="comment" class="form-control" required></textarea>
+                <div class="text-danger mt-1" id="comment-error" style="display: none;">Please provide review</div>
+            </div>
+            <div class="mb-3">
+                <label for="rating" class="form-label">Rating: <span id="ratingValue">3</span>/5</label>
+                <input type="range" min="1" max="5" value="3" step="1" name="review[rating]" id="rating" class="form-range" required>
+                <div class="d-flex justify-content-between mt-1">
+                    <small>1</small>
+                    <small>2</small>
+                    <small>3</small>
+                    <small>4</small>
+                    <small>5</small>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-dark">Submit</button>
+        </form>
+        <script>
+            const ratingInput = document.getElementById('rating');
+            const ratingValue = document.getElementById('ratingValue');
+            ratingInput.addEventListener('input', function() {
+                ratingValue.textContent = this.value;
+            });
+
+            // Form validation
+            const reviewForm = document.querySelector('form[action*="/reviews"]');
+            const commentField = document.getElementById('comment');
+            const commentError = document.getElementById('comment-error');
+            
+            reviewForm.addEventListener('submit', function(e) {
+                const commentValue = commentField.value.trim();
+                
+                if (!commentValue) {
+                    e.preventDefault();
+                    commentError.style.display = 'block';
+                    commentField.classList.add('is-invalid');
+                    commentField.focus();
+                    return false;
+                } else {
+                    commentError.style.display = 'none';
+                    commentField.classList.remove('is-invalid');
+                }
+            });
+            
+            // Hide error when user starts typing
+            commentField.addEventListener('input', function() {
+                if (this.value.trim()) {
+                    commentError.style.display = 'none';
+                    this.classList.remove('is-invalid');
+                }
+            });
+        </script>
+        <hr class="my-4">
+        <div class="reviews-section">
+            <h3 class="mb-4">
+                <i class="fas fa-star text-warning"></i> 
+                Reviews 
+                <% if (listing.reviews && listing.reviews.length > 0) { %>
+                    <span class="badge bg-secondary ms-2"><%= listing.reviews.length %></span>
+                <% } %>
+            </h3>
+            
+            <% if (listing.reviews && listing.reviews.length > 0) { %>
+                <div class="row g-4">
+                    <% for(let review of listing.reviews){ %>
+                        <% if (review && review.comment) { %>
+                            <div class="col-md-6">
+                                <div class="card review-card h-100 shadow-sm">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                            <div class="review-rating">
+                                                <% if (review.rating) { %>
+                                                    <% for(let i = 1; i <= 5; i++) { %>
+                                                        <% if (i <= review.rating) { %>
+                                                            <i class="fas fa-star text-warning"></i>
+                                                        <% } else { %>
+                                                            <i class="far fa-star text-secondary"></i>
+                                                        <% } %>
+                                                    <% } %>
+                                                    <span class="ms-2 fw-bold"><%= review.rating %>/5</span>
+                                                <% } %>
+                                            </div>
+                                            <% if (review.createdAt) { %>
+                                                <small class="text-muted">
+                                                    <i class="far fa-calendar-alt"></i>
+                                                    <%= new Date(review.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %>
+                                                </small>
+                                            <% } %>
+                                        </div>
+                                        <p class="card-text review-comment mb-3">
+                                            "<%= review.comment %>"
+                                        </p>
+                                        <div class="d-flex gap-2 mt-3 pt-3 border-top">
+                                            <form method="post" action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE" class="m-0">
+                                                <button class="btn btn-danger btn-sm" type="submit">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <% } %>
+                    <% } %>
+                </div>
+            <% } else { %>
+                <div class="text-center py-5">
+                    <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                    <p class="text-muted fs-5">No reviews yet. Be the first to review!</p>
+                </div>
+            <% } %>
         </div>
     </div>
 </div>

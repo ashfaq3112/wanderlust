@@ -1,6 +1,7 @@
+
 (function () {
     'use strict'
-  
+    const forms = document.querySelectorAll('.needs-validation');
     // Wait for DOM to be fully loaded
     window.addEventListener('DOMContentLoaded', function() {
       // Fetch all the forms we want to apply custom Bootstrap validation styles to
