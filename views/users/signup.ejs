@@ -1,0 +1,134 @@
+<% layout("/layouts/boilerplate")%>
+
+<% if(typeof success !== 'undefined' && success && success.length > 0) { %>
+    <div class="alert alert-success alert-dismissible fade show" role="alert" id="successAlert">
+        <%= success %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <script>
+        setTimeout(() => {
+            const alert = document.getElementById('successAlert');
+            if (alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        }, 3000);
+    </script>
+<% } %>
+
+<% if(typeof error !== 'undefined' && error && error.length > 0) { %>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" id="errorAlert">
+        <%= error %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <script>
+        setTimeout(() => {
+            const alert = document.getElementById('errorAlert');
+            if (alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        }, 5000);
+    </script>
+<% } %>
+
+<div class="container">
+    <div class="row justify-content-center align-items-center min-vh-100">
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <h2 class="fw-bold text-primary mb-2">Create Account</h2>
+                        <p class="text-muted">Join Wanderlust today</p>
+                    </div>
+                    
+                    <form action="/signup" method="post" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="username" class="form-label fw-semibold">Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0">
+                                    <i class="fas fa-user text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0" id="username" name="username" 
+                                       placeholder="Choose a username" required>
+                            </div>
+                            <div class="invalid-feedback">Please provide a username</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label fw-semibold">Email Address</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0">
+                                    <i class="fas fa-envelope text-muted"></i>
+                                </span>
+                                <input type="email" class="form-control border-start-0" id="email" name="email" 
+                                       placeholder="your@email.com" required>
+                            </div>
+                            <div class="invalid-feedback">Please provide a valid email</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="password" class="form-label fw-semibold">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0">
+                                    <i class="fas fa-lock text-muted"></i>
+                                </span>
+                                <input type="password" class="form-control border-start-0" id="password" name="password" 
+                                       placeholder="Create a strong password" required minlength="6">
+                            </div>
+                            <div class="invalid-feedback">Password must be at least 6 characters</div>
+                        </div>
+                        
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-primary btn-lg fw-semibold">
+                                Sign Up
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center">
+                        <p class="mb-0 text-muted">
+                            Already have an account? 
+                            <a href="/login" class="text-primary text-decoration-none fw-semibold">Log in</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.min-vh-100 {
+    min-height: 100vh;
+}
+
+.card {
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.input-group-text {
+    border-radius: 8px 0 0 8px;
+}
+
+.form-control {
+    border-radius: 0 8px 8px 0;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: none;
+}
+
+.btn-primary {
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+    transition: all 0.3s ease;
+}
+</style>

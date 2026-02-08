@@ -1,4 +1,37 @@
 <% layout("/layouts/boilerplate")%>
+
+<% if(typeof success !== 'undefined' && success && success.length > 0) { %>
+    <div class="alert alert-success alert-dismissible fade show" role="alert" id="successAlert">
+        <%= success %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <script>
+        setTimeout(() => {
+            const alert = document.getElementById('successAlert');
+            if (alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        }, 3000);
+    </script>
+<% } %>
+
+<% if(typeof error !== 'undefined' && error && error.length > 0) { %>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" id="errorAlert">
+        <%= error %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <script>
+        setTimeout(() => {
+            const alert = document.getElementById('errorAlert');
+            if (alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        }, 5000);
+    </script>
+<% } %>
+
 <div class="container my-4">
     <div class="row justify-content-center">
         <div class="col-lg-8">

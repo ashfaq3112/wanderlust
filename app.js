@@ -1,17 +1,21 @@
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
-const Listing = require("./models/listing.js");
 const path = require("path");
-const methodOverride =  require("method-override");
+const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
-const wrapAsync = require("./utils/wrapAsync.js");
 const ExpressError = require("./utils/ExpressError.js");
-const {listingSchema, reviewSchema} = require("./schema.js");
 const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
-const Review = require("./models/review.js");
-
-
+const listingRoutes = require("./routes/listing.js");
+const serverRoutes = require("./routes/server.js");
+const userRoutes = require("./routes/user.js");
+const session = require("express-session");
+const flash = require("connect-flash");
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+const User = require("./models/user.js");
+const listings = require("./models/listing.js");
+const reviews = require("./models/review.js");
 
 main()
     .then(()=>{
@@ -32,166 +36,64 @@ app.use(express.urlencoded({extended:true}));
 app.use(methodOverride("_method"));
 app.engine('ejs',ejsMate);
 app.use(express.static(path.join(__dirname,"/public")));
- 
-app.get("/",(req,res)=>{      //api
-    res.send("Hi i am root");
-});
 
-const validateListing = (req,res,next) => {
-    const {error} = listingSchema.validate(req.body);
-    if (error) {
-        throw new ExpressError(error.message, 400);
-    }
-    next();
-}
-
-const validateReview = (req,res,next) => {
-    const {error} = reviewSchema.validate(req.body);
-    if (error) {
-        throw new ExpressError(error.message, 400);
-    }
-    next();
-}
-app.get("/listings",wrapAsync(async (req,res)=>{
-    const allListings = await Listing.find({});
-    res.render("listings/index",{allListings});
-}));
-
-//New Route
-app.get("/listings/new",(req,res)=>{
-    res.render("listings/new.ejs");
-});
-
-//show route
-app.get("/listings/:id",wrapAsync(async (req,res)=>{
-    let {id} = req.params;
-    const listing = await Listing.findById(id);
-    if (!listing) {
-        throw new ExpressError("Listing not found", 404);
-    }
-    
-    // Populate reviews if they exist
-    if (listing.reviews && listing.reviews.length > 0) {
-        try {
-            await listing.populate("reviews");
-        } catch (populateError) {
-            console.log("Populate error:", populateError.message);
-            listing.reviews = [];
+const sessionOptions = {
+    secret: "mysupersecretcode",
+    resave: false,
+    saveUninitialized: true,
+    httpOnly:true,
+};
+app.use(session(sessionOptions));
+app.use(flash());
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy({
+    usernameField: 'username',
+    passwordField: 'password'
+}, async (username, password, done) => {
+    try {
+        // Try to find user by email or username
+        const user = await User.findOne({ 
+            $or: [
+                { email: username },
+                { username: username }
+            ]
+        });
+        
+        if (!user) {
+            return done(null, false, { message: 'No user found with that email or username' });
         }
-    } else {
-        listing.reviews = [];
+        
+        // Use passport-local-mongoose's authenticate method
+        const isAuthenticated = await user.authenticate(password);
+        if (isAuthenticated) {
+            return done(null, user);
+        } else {
+            return done(null, false, { message: 'Incorrect password' });
+        }
+    } catch (err) {
+        return done(err);
     }
-    
-    // Ensure reviews is always an array
-    if (!Array.isArray(listing.reviews)) {
-        listing.reviews = [];
-    }
-    
-    res.render("listings/show.ejs",{listing});
 }));
-
-//edit route
-app.get("/listings/:id/edit",wrapAsync(async (req,res)=>{
-    let {id} = req.params;
-    const listing = await Listing.findById(id);
-    if (!listing) {
-        throw new ExpressError("Listing not found", 404);
-    }
-    res.render("listings/edit.ejs",{listing});
-}));
-
-//update route
-app.put("/listings/:id",validateListing, wrapAsync(async(req,res)=>{
-    let {id} = req.params;
-    await Listing.findByIdAndUpdate(id,{...req.body.listing});
-    res.redirect(`/listings/${id}`);
-}));
-
-//create route
-app.post("/listings",validateListing, wrapAsync(async (req,res)=>{
-    console.log("Received data:", req.body);
-    console.log("Listing data:", req.body.listing);
-    
-    // Validate that listing data exists and has required fields
-    if (!req.body.listing) {
-        throw new ExpressError("No listing data provided", 400);
-    }
-    
-    if (!req.body.listing.title || req.body.listing.title.trim() === '') {
-        throw new ExpressError("Title is required", 400);
-    }
-    
-    const newListing = new Listing(req.body.listing);
-    await newListing.save();
-    res.redirect("/listings");
-}));                 
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 
-//delete route
-app.delete("/listings/:id",wrapAsync(async (req,res)=>{
-    let {id} = req.params;
-    let deletedListing = await Listing.findByIdAndDelete(id);
-    if (!deletedListing) {
-        throw new ExpressError("Listing not found", 404);
-    }
-    console.log(deletedListing);
-    res.redirect("/listings");
-}));
+app.use((req, res, next) => {
+    res.locals.success = req.flash("success");
+    res.locals.error = req.flash("error");
+    next();
+});
 
-//reviews routes - MUST be before error handlers
-//post route
-app.post("/listings/:id/reviews",validateReview, wrapAsync(async (req,res)=>{
-    let {id} = req.params;
-    let listing = await Listing.findById(id);
-    if (!listing) {
-        throw new ExpressError("Listing not found", 404);
-    }
+app.get("/demoUser",async(req,res)=>{
+    let user = await User.register(new User({email:"yaseen@gmail.com"}),"yaseen123");
+    res.send(user);
     
-    // Ensure reviews array exists
-    if (!listing.reviews) {
-        listing.reviews = [];
-    }
-    
-    let newReview = new Review(req.body.review);
-    await newReview.save();
-    console.log("New review saved:", newReview);
-    
-    listing.reviews.push(newReview._id);
-    await listing.save();
-    console.log("Listing updated with review. Total reviews:", listing.reviews.length);
-    
-    res.redirect(`/listings/${id}`);
-}));
+})
 
-// delete review route - more specific route must come before general routes
-app.delete("/listings/:id/reviews/:reviewId",wrapAsync(async (req,res)=>{
-    let {id, reviewId} = req.params;
-    let listing = await Listing.findById(id);
-    if (!listing) {
-        throw new ExpressError("Listing not found", 404);
-    }
-    
-    // Remove review from listing
-    listing.reviews = listing.reviews.filter(review => review.toString() !== reviewId);
-    await listing.save();
-    
-    // Delete the review
-    await Review.findByIdAndDelete(reviewId);
-    console.log("Review deleted:", reviewId);
-    
-    res.redirect(`/listings/${id}`);
-}));
-
-// edit review route
-app.get("/listings/:id/reviews/:reviewId/edit",wrapAsync(async (req,res)=>{
-    let {id, reviewId} = req.params;
-    let review = await Review.findById(reviewId);
-    if (!review) {
-        throw new ExpressError("Review not found", 404);
-    }
-    res.render("listings/edit-review.ejs",{review, listingId: id});
-}));
-
+app.use("/", serverRoutes);
+app.use("/listings", listingRoutes);
+app.use("/", userRoutes);
 // 404 handler - must be after all routes
 app.use((req,res,next)=>{
     next(new ExpressError("Page Not Found",404));
