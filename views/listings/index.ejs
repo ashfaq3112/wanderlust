@@ -7,6 +7,123 @@
     </a>
 </div>
 
+<!-- Search Section -->
+<div class="search-section mb-4">
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+            <form id="searchForm">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="searchInput" placeholder="Search listings">
+                            <label for="searchInput">
+                                <i class="fas fa-search me-2"></i>Search Listings
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-floating">
+                            <select class="form-select" id="priceFilter">
+                                <option value="">All Prices</option>
+                                <option value="0-5000">Under ₹5,000</option>
+                                <option value="5000-10000">₹5,000 - ₹10,000</option>
+                                <option value="10000-20000">₹10,000 - ₹20,000</option>
+                                <option value="20000+">Above ₹20,000</option>
+                            </select>
+                            <label for="priceFilter">
+                                <i class="fas fa-tag me-2"></i>Price Range
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-floating">
+                            <select class="form-select" id="sortBy">
+                                <option value="newest">Newest First</option>
+                                <option value="oldest">Oldest First</option>
+                                <option value="price-low">Price: Low to High</option>
+                                <option value="price-high">Price: High to Low</option>
+                                <option value="title">Title A-Z</option>
+                            </select>
+                            <label for="sortBy">
+                                <i class="fas fa-sort me-2"></i>Sort By
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-floating">
+                            <select class="form-select" id="categoryFilter">
+                                <option value="">All Categories</option>
+                                <option value="beach">Beach</option>
+                                <option value="mountains">Mountains</option>
+                                <option value="city">City</option>
+                                <option value="camping">Camping</option>
+                                <option value="arctic">Arctic</option>
+                                <option value="forest">Forest</option>
+                                <option value="historical">Historical</option>
+                                <option value="pool">Pool</option>
+                                <option value="adventure">Adventure</option>
+                                <option value="wellness">Wellness</option>
+                            </select>
+                            <label for="categoryFilter">
+                                <i class="fas fa-filter me-2"></i>Category
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary flex-fill">
+                                <i class="fas fa-search me-1"></i>Search
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" id="clearSearch">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            
+            <!-- Search Results Summary -->
+            <div id="searchResults" class="mt-4 d-none">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Found <span id="resultCount" class="fw-bold">0</span> listings
+                    </span>
+                    <div class="d-flex gap-2 align-items-center">
+                        <!-- Tax Switch -->
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="taxSwitch" checked>
+                            <label class="form-check-label" for="taxSwitch">
+                                <i class="fas fa-receipt me-1"></i>Show Tax
+                            </label>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger" id="resetFilters">
+                            <i class="fas fa-undo me-1"></i>Reset All
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- No Results Message -->
+<div id="noResults" class="alert alert-info d-none">
+    <div class="text-center py-4">
+        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+        <h5>No listings found</h5>
+        <p class="text-muted">Try adjusting your search criteria or filters</p>
+    </div>
+</div>
+
+<!-- Loading State -->
+<div id="loadingState" class="text-center py-5 d-none">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2 text-muted">Searching listings...</p>
+</div>
+
 <% if(typeof success !== 'undefined' && success && success.length > 0) { %>
     <div class="alert alert-success alert-dismissible fade show" role="alert" id="successAlert">
         <%= success %>
@@ -94,9 +211,9 @@
             <span>Wellness</span>
         </div>
     </div>
-    <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 g-4">
+    <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 g-4" id="listingsContainer">
     <% for (let listing of allListings) { %>
-    <div class="col mb-4">
+    <div class="col mb-4 listing-item" data-title="<%= listing.title.toLowerCase() %>" data-location="<%= listing.location.toLowerCase() %>" data-country="<%= listing.country.toLowerCase() %>" data-price="<%= listing.price || 0 %>" data-category="">
         <a href="/listings/<%= listing._id %>" class="listing-link text-decoration-none">
             <div class="card h-100 shadow-sm hover-shadow">
                 <img src="<%= listing.image && listing.image.url ? listing.image.url : 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1200' %>" class="card-img-top" alt="listing_image" style="height:200px; object-fit:cover;" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1200';">
@@ -104,7 +221,13 @@
                     <h5 class="card-title"><%= listing.title %></h5>
                     <p class="card-text mt-auto">
                         <% if (listing.price) { %>
-                            <span class="fw-bold text-primary">&#8377;<%= listing.price.toLocaleString("en-IN") %>/night</span>
+                            <span class="price-display" data-base-price="<%= listing.price %>" data-tax-rate="0.18">
+                                <span class="fw-bold text-primary">&#8377;<span class="price-amount"><%= listing.price.toLocaleString("en-IN") %></span></span>
+                                <span class="tax-info text-muted small">/night</span>
+                                <span class="tax-breakdown text-muted small d-block">
+                                    <span class="tax-amount"></span>
+                                </span>
+                            </span>
                         <% } else { %>
                             <span class="text-muted">Price not available</span>
                         <% } %>
@@ -196,15 +319,293 @@
     .filter i {
         font-size: 14px;
     }
+    
+    .search-section .card-body {
+        padding: 1rem !important;
+    }
+    
+    .search-section .row {
+        gap: 0.5rem;
+    }
+    
+    .search-section .col-md-2,
+    .search-section .col-md-4 {
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Search form specific fixes */
+.search-section .form-floating {
+    height: 58px;
+    margin-bottom: 0;
+}
+
+.search-section .form-floating > .form-control {
+    height: 58px;
+    padding: 1.5rem 0.75rem 0.75rem 0.75rem;
+}
+
+.search-section .form-floating > .form-control:focus ~ label,
+.search-section .form-floating > .form-control:not(:placeholder-shown) ~ label,
+.search-section .form-floating > .form-select ~ label {
+    opacity: 0.65;
+    transform: scale(0.85) translateY(-0.8rem) translateX(0.15rem);
+}
+
+.search-section .form-floating > label {
+    padding: 1rem 0.75rem;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    pointer-events: none;
+    border: 1px solid transparent;
+    transform-origin: 0 0;
+    transition: opacity .1s ease-in-out,transform .1s ease-in-out;
+    display: flex;
+    align-items: center;
+}
+
+.search-section .form-floating > label::after {
+    content: "";
+    position: absolute;
+    inset: 0.5rem 0.75rem;
+    z-index: -1;
+    background-color: var(--bg-card);
+    border-radius: 0.25rem;
+}
+
+[data-theme="dark"] .search-section .form-floating > label::after {
+    background-color: var(--bg-card);
+}
+
+.search-section .form-select {
+    height: 58px;
+    padding: 1.5rem 0.75rem 0.75rem 0.75rem;
+}
+
+/* Button alignment fixes */
+.search-section .d-flex.gap-2 {
+    height: 58px;
+}
+
+.search-section .btn {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Card spacing improvements */
+.search-section .card {
+    overflow: hidden;
+}
+
+.search-section .card-body {
+    background-color: var(--bg-card);
+    transition: background-color 0.3s ease;
 }
 </style>
 
 <script>
-    // Filter functionality
+    // Search and Filter functionality
     document.addEventListener('DOMContentLoaded', function() {
         const filters = document.querySelectorAll('.filter');
-        const listings = document.querySelectorAll('.listing-link');
+        const listings = document.querySelectorAll('.listing-item');
+        const taxSwitch = document.getElementById('taxSwitch');
+        const searchForm = document.getElementById('searchForm');
+        const searchInput = document.getElementById('searchInput');
+        const priceFilter = document.getElementById('priceFilter');
+        const sortBy = document.getElementById('sortBy');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const clearSearchBtn = document.getElementById('clearSearch');
+        const resetFiltersBtn = document.getElementById('resetFilters');
+        const searchResults = document.getElementById('searchResults');
+        const resultCount = document.getElementById('resultCount');
+        const noResults = document.getElementById('noResults');
+        const loadingState = document.getElementById('loadingState');
+        const listingsContainer = document.getElementById('listingsContainer');
         
+        let allListings = Array.from(listings);
+        let filteredListings = [...allListings];
+        
+        // Tax switch functionality
+        function updatePrices() {
+            const showTax = taxSwitch.checked;
+            const priceDisplays = document.querySelectorAll('.price-display');
+            
+            priceDisplays.forEach(display => {
+                const basePrice = parseFloat(display.dataset.basePrice);
+                const taxRate = parseFloat(display.dataset.taxRate);
+                const priceAmount = display.querySelector('.price-amount');
+                const taxAmount = display.querySelector('.tax-amount');
+                const taxInfo = display.querySelector('.tax-info');
+                
+                if (showTax) {
+                    // Show price with tax
+                    const totalWithTax = basePrice * (1 + taxRate);
+                    const taxAmountValue = basePrice * taxRate;
+                    
+                    priceAmount.textContent = totalWithTax.toLocaleString("en-IN", { maximumFractionDigits: 0 });
+                    taxAmount.textContent = `(incl. ₹${taxAmountValue.toLocaleString("en-IN", { maximumFractionDigits: 0 })} tax)`;
+                    taxInfo.textContent = '/night (incl. tax)';
+                } else {
+                    // Show price without tax
+                    priceAmount.textContent = basePrice.toLocaleString("en-IN");
+                    taxAmount.textContent = '';
+                    taxInfo.textContent = '/night';
+                }
+            });
+        }
+        
+        // Initialize prices on page load
+        updatePrices();
+        
+        // Update prices when switch is toggled
+        taxSwitch.addEventListener('change', updatePrices);
+        
+        // Search functionality
+        function performSearch() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const priceRange = priceFilter.value;
+            const sortOption = sortBy.value;
+            const category = categoryFilter.value;
+            
+            // Show loading state
+            loadingState.classList.remove('d-none');
+            listingsContainer.classList.add('d-none');
+            noResults.classList.add('d-none');
+            
+            // Simulate search delay for better UX
+            setTimeout(() => {
+                // Filter listings
+                filteredListings = allListings.filter(listing => {
+                    const title = listing.dataset.title;
+                    const location = listing.dataset.location;
+                    const country = listing.dataset.country;
+                    const price = parseFloat(listing.dataset.price);
+                    
+                    // Text search
+                    const matchesSearch = !searchTerm || 
+                        title.includes(searchTerm) || 
+                        location.includes(searchTerm) || 
+                        country.includes(searchTerm);
+                    
+                    // Price filter
+                    let matchesPrice = true;
+                    if (priceRange) {
+                        if (priceRange === '0-5000') {
+                            matchesPrice = price < 5000;
+                        } else if (priceRange === '5000-10000') {
+                            matchesPrice = price >= 5000 && price < 10000;
+                        } else if (priceRange === '10000-20000') {
+                            matchesPrice = price >= 10000 && price < 20000;
+                        } else if (priceRange === '20000+') {
+                            matchesPrice = price >= 20000;
+                        }
+                    }
+                    
+                    // Category filter (placeholder for future implementation)
+                    const matchesCategory = !category || listing.dataset.category === category;
+                    
+                    return matchesSearch && matchesPrice && matchesCategory;
+                });
+                
+                // Sort listings
+                sortListings(sortOption);
+                
+                // Update UI
+                updateSearchResults();
+                
+                // Hide loading state
+                loadingState.classList.add('d-none');
+            }, 300);
+        }
+        
+        function sortListings(sortOption) {
+            switch(sortOption) {
+                case 'price-low':
+                    filteredListings.sort((a, b) => 
+                        parseFloat(a.dataset.price) - parseFloat(b.dataset.price)
+                    );
+                    break;
+                case 'price-high':
+                    filteredListings.sort((a, b) => 
+                        parseFloat(b.dataset.price) - parseFloat(a.dataset.price)
+                    );
+                    break;
+                case 'title':
+                    filteredListings.sort((a, b) => 
+                        a.dataset.title.localeCompare(b.dataset.title)
+                    );
+                    break;
+                case 'newest':
+                case 'oldest':
+                default:
+                    // Keep original order for now
+                    break;
+            }
+        }
+        
+        function updateSearchResults() {
+            // Clear container
+            listingsContainer.innerHTML = '';
+            
+            if (filteredListings.length === 0) {
+                // Show no results
+                noResults.classList.remove('d-none');
+                searchResults.classList.add('d-none');
+            } else {
+                // Show results
+                noResults.classList.add('d-none');
+                searchResults.classList.remove('d-none');
+                resultCount.textContent = filteredListings.length;
+                
+                // Append filtered listings
+                filteredListings.forEach(listing => {
+                    listingsContainer.appendChild(listing);
+                });
+                
+                // Reinitialize prices for new items
+                updatePrices();
+            }
+            
+            listingsContainer.classList.remove('d-none');
+        }
+        
+        function clearAllFilters() {
+            searchInput.value = '';
+            priceFilter.value = '';
+            sortBy.value = 'newest';
+            categoryFilter.value = '';
+            
+            // Reset to all listings
+            filteredListings = [...allListings];
+            updateSearchResults();
+            
+            // Hide search results summary
+            searchResults.classList.add('d-none');
+        }
+        
+        // Event listeners
+        searchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            performSearch();
+        });
+        
+        searchInput.addEventListener('input', performSearch);
+        priceFilter.addEventListener('change', performSearch);
+        sortBy.addEventListener('change', performSearch);
+        categoryFilter.addEventListener('change', performSearch);
+        
+        clearSearchBtn.addEventListener('click', function() {
+            searchInput.value = '';
+            performSearch();
+        });
+        
+        resetFiltersBtn.addEventListener('click', clearAllFilters);
+        
+        // Category filter functionality
         filters.forEach(filter => {
             filter.addEventListener('click', function() {
                 // Remove active class from all filters
@@ -213,31 +614,12 @@
                 // Add active class to clicked filter
                 this.classList.add('active');
                 
-                // Get filter type (you can implement actual filtering logic here)
+                // Get filter type and set category filter
                 const filterType = this.querySelector('span').textContent.toLowerCase();
-                console.log('Filter clicked:', filterType);
-                
-                // For now, just show visual feedback
-                // You can implement actual filtering logic later
-                filterListings(filterType);
+                categoryFilter.value = filterType;
+                performSearch();
             });
         });
-        
-        function filterListings(filterType) {
-            // This is where you would implement actual filtering logic
-            // For now, we'll just show all listings
-            listings.forEach(listing => {
-                listing.style.display = 'block';
-            });
-            
-            // You could add logic like:
-            // if (filterType === 'trending') {
-            //     // Show only trending listings
-            // } else if (filterType === 'rooms') {
-            //     // Show only room listings
-            // }
-            // etc.
-        }
     });
 </script>
 

@@ -13,6 +13,13 @@
         <% } %>
       </div>
       <div class="navbar-nav ms-auto">
+        <!-- Dark Mode Toggle -->
+        <div class="form-check form-switch me-3">
+            <input class="form-check-input" type="checkbox" id="darkModeSwitch">
+            <label class="form-check-label" for="darkModeSwitch">
+                <i class="fas fa-moon" id="darkModeIcon"></i>
+            </label>
+        </div>
         <% if (typeof currUser !== 'undefined' && currUser) { %>
           <span class="nav-link disabled d-none d-md-block">
             Signed in as <strong><%= currUser.username || currUser.email %></strong>

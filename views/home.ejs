@@ -117,9 +117,18 @@
 <div class="mb-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h3><i class="fas fa-star me-2"></i>Featured Listings</h3>
-        <a href="/listings" class="btn btn-outline-primary btn-sm">
-            View All <i class="fas fa-arrow-right ms-1"></i>
-        </a>
+        <div class="d-flex align-items-center gap-3">
+            <!-- Tax Switch -->
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="homeTaxSwitch" checked>
+                <label class="form-check-label" for="homeTaxSwitch">
+                    <i class="fas fa-receipt me-1"></i>Show Tax
+                </label>
+            </div>
+            <a href="/listings" class="btn btn-outline-primary btn-sm">
+                View All <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+        </div>
     </div>
     <div class="row row-cols-lg-4 row-cols-md-3 row-cols-sm-2 g-4">
         <% for (let listing of allListings.slice(0, 8)) { %>
@@ -141,7 +150,13 @@
                         </p>
                         <p class="card-text mt-auto">
                             <% if (listing.price) { %>
-                                <span class="fw-bold text-primary">&#8377;<%= listing.price.toLocaleString("en-IN") %>/night</span>
+                                <span class="price-display" data-base-price="<%= listing.price %>" data-tax-rate="0.18">
+                                    <span class="fw-bold text-primary">&#8377;<span class="price-amount"><%= listing.price.toLocaleString("en-IN") %></span></span>
+                                    <span class="tax-info text-muted small">/night</span>
+                                    <span class="tax-breakdown text-muted small d-block">
+                                        <span class="tax-amount"></span>
+                                    </span>
+                                </span>
                             <% } else { %>
                                 <span class="text-muted">Price not available</span>
                             <% } %>
@@ -248,6 +263,42 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const filters = document.querySelectorAll('.category-filter');
+    const homeTaxSwitch = document.getElementById('homeTaxSwitch');
+    
+    // Tax switch functionality for home page
+    function updateHomePrices() {
+        const showTax = homeTaxSwitch.checked;
+        const priceDisplays = document.querySelectorAll('.price-display');
+        
+        priceDisplays.forEach(display => {
+            const basePrice = parseFloat(display.dataset.basePrice);
+            const taxRate = parseFloat(display.dataset.taxRate);
+            const priceAmount = display.querySelector('.price-amount');
+            const taxAmount = display.querySelector('.tax-amount');
+            const taxInfo = display.querySelector('.tax-info');
+            
+            if (showTax) {
+                // Show price with tax
+                const totalWithTax = basePrice * (1 + taxRate);
+                const taxAmountValue = basePrice * taxRate;
+                
+                priceAmount.textContent = totalWithTax.toLocaleString("en-IN", { maximumFractionDigits: 0 });
+                taxAmount.textContent = `(incl. ₹${taxAmountValue.toLocaleString("en-IN", { maximumFractionDigits: 0 })} tax)`;
+                taxInfo.textContent = '/night (incl. tax)';
+            } else {
+                // Show price without tax
+                priceAmount.textContent = basePrice.toLocaleString("en-IN");
+                taxAmount.textContent = '';
+                taxInfo.textContent = '/night';
+            }
+        });
+    }
+    
+    // Initialize prices on page load
+    updateHomePrices();
+    
+    // Update prices when switch is toggled
+    homeTaxSwitch.addEventListener('change', updateHomePrices);
     
     filters.forEach(filter => {
         filter.addEventListener('click', function() {
