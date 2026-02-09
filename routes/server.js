@@ -1,10 +1,17 @@
 const express = require("express");
 const router = express.Router();
 const flash = require("connect-flash");
+const Listing = require("../models/listing.js");
 
-// Root route
-router.get("/", (req, res) => {
-    res.send("Hi i am root");
+// Root route - Home page with icons and listings
+router.get("/", async (req, res) => {
+    try {
+        const allListings = await Listing.find({});
+        res.render("home", { allListings });
+    } catch (error) {
+        console.error("Error fetching listings for home page:", error);
+        res.render("home", { allListings: [] });
+    }
 });
 
 // Session test: visit /session-test to set a value, visit again to see it persist

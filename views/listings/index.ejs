@@ -1,5 +1,12 @@
 <% layout("/layouts/boilerplate")%>
 
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-list me-2"></i>All Listings</h2>
+    <a href="/" class="btn btn-outline-primary">
+        <i class="fas fa-home me-1"></i> Back to Home
+    </a>
+</div>
+
 <% if(typeof success !== 'undefined' && success && success.length > 0) { %>
     <div class="alert alert-success alert-dismissible fade show" role="alert" id="successAlert">
         <%= success %>
@@ -33,10 +40,60 @@
 <% } %>
 
 <body>
-    <h1>All Listings</h1>
+    <!-- <h1>All Listings</h1> -->
     <!-- <form method="get" action="/listings/new">
         <button>Create New Listing</button>
     </form> -->
+    <div id="filters">
+        <div class="filter">
+            <i class="fas fa-fire"></i>
+            <span>Trending</span>
+        </div>
+        <div class="filter">
+            <i class="fas fa-umbrella-beach"></i>
+            <span>Beach</span>
+        </div>
+        <div class="filter">
+            <i class="fas fa-mountain"></i>
+            <span>Mountains</span>
+        </div>
+        <div class="filter">
+            <i class="fas fa-city"></i>
+            <span>City</span>
+        </div>
+        <div class="filter">
+            <i class="fas fa-campground"></i>
+            <span>Camping</span>
+        </div>
+        <div class="filter">
+            <i class="fas fa-snowflake"></i>
+            <span>Arctic</span>
+        </div>
+        <div class="filter">
+            <i class="fas fa-tree"></i>
+            <span>Forest</span>
+        </div>
+        <div class="filter">
+            <i class="fas fa-landmark"></i>
+            <span>Historical</span>
+        </div>
+        <div class="filter">
+            <i class="fas fa-swimming-pool"></i>
+            <span>Pool</span>
+        </div>
+        <div class="filter">
+            <i class="fas fa-utensils"></i>
+            <span>Food & Drink</span>
+        </div>
+        <div class="filter">
+            <i class="fas fa-dumbbell"></i>
+            <span>Adventure</span>
+        </div>
+        <div class="filter">
+            <i class="fas fa-spa"></i>
+            <span>Wellness</span>
+        </div>
+    </div>
     <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 g-4">
     <% for (let listing of allListings) { %>
     <div class="col mb-4">
@@ -60,23 +117,129 @@
 </div>
 
 <style>
+/* Filters Styling */
+#filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 30px;
+    padding: 20px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 1px solid #dee2e6;
+    border-radius: 20px;
+    background-color: #f8f9fa;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    color: #495057;
+}
+
+.filter:hover {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,123,255,0.2);
+}
+
+.filter i {
+    font-size: 16px;
+}
+
+.filter.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+/* Listing Cards */
 .listing-link:hover .card {
     transform: translateY(-5px);
     box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
     transition: all 0.3s ease;
 }
+
 .hover-shadow {
     transition: all 0.3s ease;
 }
+
 .card {
     border: none;
     border-radius: 12px;
     overflow: hidden;
 }
+
 .card-img-top {
     border-bottom: 3px solid #007bff;
 }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #filters {
+        gap: 8px;
+        margin-bottom: 20px;
+        padding: 15px 0;
+    }
+    
+    .filter {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+    
+    .filter i {
+        font-size: 14px;
+    }
+}
 </style>
+
+<script>
+    // Filter functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const filters = document.querySelectorAll('.filter');
+        const listings = document.querySelectorAll('.listing-link');
+        
+        filters.forEach(filter => {
+            filter.addEventListener('click', function() {
+                // Remove active class from all filters
+                filters.forEach(f => f.classList.remove('active'));
+                
+                // Add active class to clicked filter
+                this.classList.add('active');
+                
+                // Get filter type (you can implement actual filtering logic here)
+                const filterType = this.querySelector('span').textContent.toLowerCase();
+                console.log('Filter clicked:', filterType);
+                
+                // For now, just show visual feedback
+                // You can implement actual filtering logic later
+                filterListings(filterType);
+            });
+        });
+        
+        function filterListings(filterType) {
+            // This is where you would implement actual filtering logic
+            // For now, we'll just show all listings
+            listings.forEach(listing => {
+                listing.style.display = 'block';
+            });
+            
+            // You could add logic like:
+            // if (filterType === 'trending') {
+            //     // Show only trending listings
+            // } else if (filterType === 'rooms') {
+            //     // Show only room listings
+            // }
+            // etc.
+        }
+    });
+</script>
 
     <!-- <ul>
         <% for(let listing of allListings){ %>

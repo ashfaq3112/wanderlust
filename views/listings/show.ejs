@@ -74,6 +74,12 @@
                     <button class="btn btn-danger btn-sm" type="submit">Delete</button>
                 </form>
             </div>
+            
+            <!-- Map Section -->
+            <div class="mt-4">
+                <h5><i class="fas fa-map-marker-alt text-danger"></i> Location</h5>
+                <div id="map"></div>
+            </div>
         </div>
     </div>
     <div class="mt-4">
@@ -258,3 +264,94 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Wait for DOM to be fully loaded and Leaflet to be available
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if Leaflet is loaded
+        if (typeof L === 'undefined') {
+            console.error('Leaflet is not loaded');
+            document.getElementById('map').innerHTML = '<div class="alert alert-warning">Map library failed to load. Please refresh the page.</div>';
+            return;
+        }
+        
+        try {
+            // Initialize the map
+            const map = L.map('map').setView([20.5937, 78.9629], 5); // Default to India center
+            
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: ' OpenStreetMap contributors',
+                maxZoom: 18
+            }).addTo(map);
+            
+            // Geocode the location and add marker
+            const location = "<%= listing.location %>, <%= listing.country %>";
+            console.log('Geocoding location:', location);
+            
+            // Use Nominatim API for geocoding (free, no API key required)
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Geocoding response:', data);
+                    if (data && data.length > 0) {
+                        const lat = parseFloat(data[0].lat);
+                        const lon = parseFloat(data[0].lon);
+                        
+                        console.log('Found coordinates:', lat, lon);
+                        
+                        // Set map view to the location
+                        map.setView([lat, lon], 13);
+                        
+                        // Add a marker with enhanced popup
+                        const marker = L.marker([lat, lon]).addTo(map);
+                        
+                        // Create custom popup content
+                        const popupContent = `
+                            <div style="min-width: 200px;">
+                                <h6 style="margin: 0 0 8px 0; color: #333; font-weight: bold;">
+                                    <%= listing.title %>
+                                </h6>
+                                <p style="margin: 4px 0; color: #666; font-size: 14px;">
+                                    <i class="fas fa-map-marker-alt" style="color: #dc3545;"></i> ${location}
+                                </p>
+                                <% if (listing.price) { %>
+                                    <p style="margin: 4px 0; color: #28a745; font-weight: bold; font-size: 14px;">
+                                        <i class="fas fa-tag"></i> &#8377;<%= listing.price.toLocaleString("en-IN")%>/night
+                                    </p>
+                                <% } %>
+                                <hr style="margin: 8px 0; border-top: 1px solid #eee;">
+                                <small style="color: #999; font-size: 12px;">
+                                    Click to explore this property
+                                </small>
+                            </div>
+                        `;
+                        
+                        marker.bindPopup(popupContent, {
+                            maxWidth: 250,
+                            className: 'custom-popup'
+                        }).openPopup();
+                    } else {
+                        console.log('Location not found');
+                        // If geocoding fails, show a message
+                        L.popup()
+                            .setLatLng(map.getCenter())
+                            .setContent('Location not found on map. Showing default view.')
+                            .openOn(map);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error geocoding location:', error);
+                    // Show error message on map
+                    L.popup()
+                        .setLatLng(map.getCenter())
+                        .setContent('Unable to load location. Showing default view.')
+                        .openOn(map);
+                });
+                
+        } catch (error) {
+            console.error('Error initializing map:', error);
+            document.getElementById('map').innerHTML = '<div class="alert alert-danger">Failed to initialize map. Please refresh the page.</div>';
+        }
+    });
+</script>

@@ -1,0 +1,266 @@
+<% layout("/layouts/boilerplate")%>
+
+<!-- Hero Section -->
+<div class="hero-section text-center py-5 mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 15px;">
+    <div class="container py-4">
+        <h1 class="display-4 fw-bold mb-3">
+            <i class="fas fa-compass me-3"></i>WanderLust
+        </h1>
+        <p class="lead mb-4">Discover amazing places around the world</p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="/listings" class="btn btn-light btn-lg">
+                <i class="fas fa-search me-2"></i>Explore Listings
+            </a>
+            <% if (typeof currUser !== 'undefined' && currUser) { %>
+                <a href="/listings/new" class="btn btn-outline-light btn-lg">
+                    <i class="fas fa-plus me-2"></i>Add Your Place
+                </a>
+            <% } else { %>
+                <a href="/signup" class="btn btn-outline-light btn-lg">
+                    <i class="fas fa-user-plus me-2"></i>Join Now
+                </a>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="row text-center mb-5">
+    <div class="col-md-3 col-6 mb-3">
+        <div class="stat-card p-3 border rounded">
+            <i class="fas fa-home fa-2x text-primary mb-2"></i>
+            <h3 class="h5 mb-1"><%= allListings.length %></h3>
+            <p class="small text-muted mb-0">Properties</p>
+        </div>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+        <div class="stat-card p-3 border rounded">
+            <i class="fas fa-globe fa-2x text-success mb-2"></i>
+            <h3 class="h5 mb-1">50+</h3>
+            <p class="small text-muted mb-0">Countries</p>
+        </div>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+        <div class="stat-card p-3 border rounded">
+            <i class="fas fa-users fa-2x text-warning mb-2"></i>
+            <h3 class="h5 mb-1">1000+</h3>
+            <p class="small text-muted mb-0">Travelers</p>
+        </div>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+        <div class="stat-card p-3 border rounded">
+            <i class="fas fa-star fa-2x text-danger mb-2"></i>
+            <h3 class="h5 mb-1">4.8</h3>
+            <p class="small text-muted mb-0">Average Rating</p>
+        </div>
+    </div>
+</div>
+
+<!-- Category Filters -->
+<div class="mb-5">
+    <h3 class="mb-4 text-center">
+        <i class="fas fa-filter me-2"></i>Explore by Category
+    </h3>
+    <div class="category-filters">
+        <div class="category-filter">
+            <i class="fas fa-fire"></i>
+            <span>Trending</span>
+        </div>
+        <div class="category-filter">
+            <i class="fas fa-umbrella-beach"></i>
+            <span>Beach</span>
+        </div>
+        <div class="category-filter">
+            <i class="fas fa-mountain"></i>
+            <span>Mountains</span>
+        </div>
+        <div class="category-filter">
+            <i class="fas fa-city"></i>
+            <span>City</span>
+        </div>
+        <div class="category-filter">
+            <i class="fas fa-campground"></i>
+            <span>Camping</span>
+        </div>
+        <div class="category-filter">
+            <i class="fas fa-snowflake"></i>
+            <span>Arctic</span>
+        </div>
+        <div class="category-filter">
+            <i class="fas fa-tree"></i>
+            <span>Forest</span>
+        </div>
+        <div class="category-filter">
+            <i class="fas fa-landmark"></i>
+            <span>Historical</span>
+        </div>
+        <div class="category-filter">
+            <i class="fas fa-swimming-pool"></i>
+            <span>Pool</span>
+        </div>
+        <div class="category-filter">
+            <i class="fas fa-utensils"></i>
+            <span>Food & Drink</span>
+        </div>
+        <div class="category-filter">
+            <i class="fas fa-dumbbell"></i>
+            <span>Adventure</span>
+        </div>
+        <div class="category-filter">
+            <i class="fas fa-spa"></i>
+            <span>Wellness</span>
+        </div>
+    </div>
+</div>
+
+<!-- Featured Listings -->
+<div class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3><i class="fas fa-star me-2"></i>Featured Listings</h3>
+        <a href="/listings" class="btn btn-outline-primary btn-sm">
+            View All <i class="fas fa-arrow-right ms-1"></i>
+        </a>
+    </div>
+    <div class="row row-cols-lg-4 row-cols-md-3 row-cols-sm-2 g-4">
+        <% for (let listing of allListings.slice(0, 8)) { %>
+        <div class="col mb-4">
+            <a href="/listings/<%= listing._id %>" class="listing-link text-decoration-none">
+                <div class="card h-100 shadow-sm hover-shadow">
+                    <div class="position-relative">
+                        <img src="<%= listing.image && listing.image.url ? listing.image.url : 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1200' %>" class="card-img-top" alt="listing_image" style="height:180px; object-fit:cover;" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1200';">
+                        <div class="position-absolute top-0 end-0 m-2">
+                            <span class="badge bg-white text-dark shadow-sm">
+                                <i class="fas fa-heart text-danger"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <h6 class="card-title mb-2"><%= listing.title %></h6>
+                        <p class="card-text small text-muted mb-2">
+                            <i class="fas fa-map-marker-alt"></i> <%= listing.location %>, <%= listing.country %>
+                        </p>
+                        <p class="card-text mt-auto">
+                            <% if (listing.price) { %>
+                                <span class="fw-bold text-primary">&#8377;<%= listing.price.toLocaleString("en-IN") %>/night</span>
+                            <% } else { %>
+                                <span class="text-muted">Price not available</span>
+                            <% } %>
+                        </p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <% } %>
+    </div>
+</div>
+
+<style>
+.hero-section {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.stat-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: white;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.category-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+}
+
+.category-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border: 2px solid #e9ecef;
+    border-radius: 25px;
+    background-color: #f8f9fa;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    color: #495057;
+    font-weight: 500;
+}
+
+.category-filter:hover {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,123,255,0.3);
+}
+
+.category-filter i {
+    font-size: 18px;
+}
+
+.category-filter.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.listing-link:hover .card {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+    transition: all 0.3s ease;
+}
+
+.hover-shadow {
+    transition: all 0.3s ease;
+}
+
+.card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.card-img-top {
+    border-bottom: 3px solid #007bff;
+}
+
+@media (max-width: 768px) {
+    .category-filters {
+        gap: 8px;
+    }
+    
+    .category-filter {
+        padding: 8px 14px;
+        font-size: 13px;
+    }
+    
+    .category-filter i {
+        font-size: 16px;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filters = document.querySelectorAll('.category-filter');
+    
+    filters.forEach(filter => {
+        filter.addEventListener('click', function() {
+            filters.forEach(f => f.classList.remove('active'));
+            this.classList.add('active');
+            
+            const filterType = this.querySelector('span').textContent.toLowerCase();
+            console.log('Home filter clicked:', filterType);
+            
+            // You can add actual filtering logic here
+            // For now, just redirect to listings with filter
+            window.location.href = `/listings?category=${filterType}`;
+        });
+    });
+});
+</script>

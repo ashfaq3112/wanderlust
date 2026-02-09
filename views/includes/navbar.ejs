@@ -6,9 +6,11 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
-        <a class="nav-link" aria-current="page" href="#">Home</a>
-        <a class="nav-link" href="/listings">All-listings</a>
-        <a class="nav-link" href="/listings/new">Add new  Listing</a>
+        <a class="nav-link" aria-current="page" href="/"><i class="fas fa-home"></i> Home</a>
+        <a class="nav-link" href="/listings"><i class="fas fa-list"></i> All Listings</a>
+        <% if (typeof currUser !== 'undefined' && currUser) { %>
+          <a class="nav-link" href="/listings/new"><i class="fas fa-plus-circle"></i> Add Listing</a>
+        <% } %>
       </div>
       <div class="navbar-nav ms-auto">
         <% if (typeof currUser !== 'undefined' && currUser) { %>
