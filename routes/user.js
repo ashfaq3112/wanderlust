@@ -9,7 +9,7 @@ router.get("/signup", (req, res) => {
 });
 
 // Register new user
-router.post("/signup", async (req, res) => {
+router.post("/signup", async (req, res, next) => {
     try {
         let { username, email, password } = req.body;
         
@@ -22,14 +22,20 @@ router.post("/signup", async (req, res) => {
         
         const newUser = new User({ email, username });
         const registeredUser = await User.register(newUser, password);
-        
-        req.flash("success", "User registered successfully!");
-        res.redirect("/listings");
+
+        // Log the user in immediately after successful registration
+        req.login(registeredUser, (err) => {
+            if (err) {
+                return next(err);
+            }
+            req.flash("success", "User registered successfully!");
+            res.redirect("/listings");
+        });
     } catch (err) {
         // Handle specific errors
-        if (err.name === 'UserExistsError') {
+        if (err.name === "UserExistsError") {
             req.flash("error", "A user with this email is already registered. Please use a different email or login.");
-        } else if (err.name === 'ValidationError') {
+        } else if (err.name === "ValidationError") {
             req.flash("error", "Please fill in all required fields correctly.");
         } else {
             req.flash("error", err.message || "Registration failed. Please try again.");
@@ -54,7 +60,10 @@ router.post("/login", (req, res, next) => {
             return next(err);
         }
         req.flash("success", "Welcome back!");
-        res.redirect("/listings");
+        // Redirect to originally requested page (e.g., /listings/new) or fallback to all listings
+        const redirectUrl = req.session.returnTo || "/listings";
+        delete req.session.returnTo;
+        res.redirect(redirectUrl);
     });
 });
 

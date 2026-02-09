@@ -78,8 +78,9 @@ passport.use(new LocalStrategy({
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-
+// Make the current user and flash messages available in all views
 app.use((req, res, next) => {
+    res.locals.currUser = req.user;
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");
     next();

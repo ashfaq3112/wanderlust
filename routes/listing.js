@@ -4,7 +4,7 @@ const wrapAsync = require("../utils/wrapAsync.js");
 const ExpressError = require("../utils/ExpressError.js");
 const Listing = require("../models/listing.js");
 const Review = require("../models/review.js");
-const { validateListing, validateReview } = require("../middleware.js");
+const { validateListing, validateReview, isLoggedIn } = require("../middleware.js");
 
 // Index - all listings
 router.get("/", wrapAsync(async (req, res) => {
@@ -12,13 +12,13 @@ router.get("/", wrapAsync(async (req, res) => {
     res.render("listings/index", { allListings });
 }));
 
-// New - form to create listing
-router.get("/new", (req, res) => {
+// New - form to create listing (login required)
+router.get("/new", isLoggedIn, (req, res) => {
     res.render("listings/new.ejs");
 });
 
-// Create - POST new listing
-router.post("/", validateListing, wrapAsync(async (req, res) => {
+// Create - POST new listing (login required)
+router.post("/", isLoggedIn, validateListing, wrapAsync(async (req, res) => {
     if (!req.body.listing) {
         throw new ExpressError("No listing data provided", 400);
     }
