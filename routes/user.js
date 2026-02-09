@@ -59,7 +59,7 @@ router.post("/login", (req, res, next) => {
         if (err) {
             return next(err);
         }
-        req.flash("success", "Welcome back!");
+        req.flash("success", "Logged in successfully!");
         // Redirect to originally requested page (e.g., /listings/new) or fallback to all listings
         const redirectUrl = req.session.returnTo || "/listings";
         delete req.session.returnTo;

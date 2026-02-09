@@ -47,34 +47,30 @@ app.use(session(sessionOptions));
 app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
-passport.use(new LocalStrategy({
-    usernameField: 'username',
-    passwordField: 'password'
-}, async (username, password, done) => {
-    try {
-        // Try to find user by email or username
-        const user = await User.findOne({ 
-            $or: [
-                { email: username },
-                { username: username }
-            ]
-        });
-        
-        if (!user) {
-            return done(null, false, { message: 'No user found with that email or username' });
-        }
-        
-        // Use passport-local-mongoose's authenticate method
-        const isAuthenticated = await user.authenticate(password);
-        if (isAuthenticated) {
+
+// Temporarily ignore password correctness: log in any existing user by username or email
+passport.use(new LocalStrategy(
+    {
+        usernameField: "username",
+        passwordField: "password"
+    },
+    async (username, password, done) => {
+        try {
+            const user = await User.findOne({
+                $or: [{ username }, { email: username }]
+            });
+
+            if (!user) {
+                return done(null, false, { message: "No user found with that username or email" });
+            }
+
+            // IMPORTANT: skipping password check on purpose (as requested)
             return done(null, user);
-        } else {
-            return done(null, false, { message: 'Incorrect password' });
+        } catch (err) {
+            return done(err);
         }
-    } catch (err) {
-        return done(err);
     }
-}));
+));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 

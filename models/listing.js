@@ -23,6 +23,11 @@ const listingSchema = new Schema({
     price:Number,
     location:String,
     country:String,
+    // Reference to the user who owns/created this listing
+    owner: {
+        type: Schema.Types.ObjectId,
+        ref: "User"
+    },
     reviews:[{
         type:Schema.Types.ObjectId,
         ref:"Review",
