@@ -5,7 +5,26 @@ const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const ExpressError = require("./utils/ExpressError.js");
-const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
+const fs = require('fs');
+
+// Check if .env file exists
+const envPath = path.join(__dirname, '.env');
+console.log('Looking for .env at:', envPath);
+console.log('.env file exists:', fs.existsSync(envPath));
+
+if (fs.existsSync(envPath)) {
+    console.log('.env file content:');
+    console.log(fs.readFileSync(envPath, 'utf8'));
+}
+
+require('dotenv').config({ path: envPath });
+
+// Debug: Check if environment variables are loaded
+console.log('CLOUD_NAME:', process.env.CLOUD_NAME);
+console.log('CLOUD_API_KEY:', process.env.CLOUD_API_KEY ? 'Found' : 'Not found');
+console.log('CLOUD_API_SECRET:', process.env.CLOUD_API_SECRET ? 'Found' : 'Not found');
+
+const MONGO_URL = process.env.MONGO_URL || "mongodb://127.0.0.1:27017/wanderlust";
 const listingRoutes = require("./routes/listing.js");
 const reviewRoutes = require("./routes/review.js");
 const serverRoutes = require("./routes/server.js");
@@ -37,6 +56,7 @@ app.use(express.urlencoded({extended:true}));
 app.use(methodOverride("_method"));
 app.engine('ejs',ejsMate);
 app.use(express.static(path.join(__dirname,"/public")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 const sessionOptions = {
     secret: "mysupersecretcode",

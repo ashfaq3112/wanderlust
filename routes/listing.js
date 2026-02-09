@@ -5,6 +5,9 @@ const ExpressError = require("../utils/ExpressError.js");
 const Listing = require("../models/listing.js");
 const Review = require("../models/review.js");
 const { validateListing, validateReview, isLoggedIn, isListingOwner } = require("../middleware.js");
+const multer = require('multer');
+const { storage } = require('../cloudConfig.js');
+const upload = multer({ storage });
 
 // Index - all listings
 router.get("/", wrapAsync(async (req, res) => {
@@ -18,14 +21,30 @@ router.get("/new", isLoggedIn, (req, res) => {
 });
 
 // Create - POST new listing (login required)
-router.post("/", isLoggedIn, validateListing, wrapAsync(async (req, res) => {
+router.post("/", isLoggedIn, upload.single('listing[image]'), validateListing, wrapAsync(async (req, res) => {
     if (!req.body.listing) {
         throw new ExpressError("No listing data provided", 400);
     }
     if (!req.body.listing.title || req.body.listing.title.trim() === "") {
         throw new ExpressError("Title is required", 400);
     }
+    
     const newListing = new Listing(req.body.listing);
+    
+    // Handle file upload
+    if (req.file) {
+        newListing.image = {
+            url: req.file.path,
+            filename: req.file.filename
+        };
+    } else {
+        // Default image if no file uploaded
+        newListing.image = {
+            url: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1200',
+            filename: 'default-image'
+        };
+    }
+    
     // Attach current user as owner
     newListing.owner = req.user._id;
     await newListing.save();
@@ -68,9 +87,20 @@ router.get("/:id/edit", isLoggedIn, isListingOwner, wrapAsync(async (req, res) =
 }));
 
 // Update listing (login + ownership required)
-router.put("/:id", isLoggedIn, isListingOwner, validateListing, wrapAsync(async (req, res) => {
+router.put("/:id", isLoggedIn, isListingOwner, upload.single('listing[image]'), validateListing, wrapAsync(async (req, res) => {
     let { id } = req.params;
-    await Listing.findByIdAndUpdate(id, { ...req.body.listing });
+    const updateData = { ...req.body.listing };
+    
+    // Handle file upload
+    if (req.file) {
+        updateData.image = {
+            url: req.file.path,
+            filename: req.file.filename
+        };
+    }
+    // If no file uploaded, keep existing image (don't update image field)
+    
+    await Listing.findByIdAndUpdate(id, updateData);
     req.flash("success", "Listing updated successfully!");
     res.redirect(`/listings/${id}`);
 }));
