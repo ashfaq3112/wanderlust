@@ -7,6 +7,7 @@ const ejsMate = require("ejs-mate");
 const ExpressError = require("./utils/ExpressError.js");
 const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
 const listingRoutes = require("./routes/listing.js");
+const reviewRoutes = require("./routes/review.js");
 const serverRoutes = require("./routes/server.js");
 const userRoutes = require("./routes/user.js");
 const session = require("express-session");
@@ -90,6 +91,7 @@ app.get("/demoUser",async(req,res)=>{
 
 app.use("/", serverRoutes);
 app.use("/listings", listingRoutes);
+app.use("/listings", reviewRoutes);
 app.use("/", userRoutes);
 // 404 handler - must be after all routes
 app.use((req,res,next)=>{

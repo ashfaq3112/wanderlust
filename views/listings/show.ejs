@@ -77,61 +77,109 @@
         </div>
     </div>
     <div class="mt-4">
-        <h3> Leave a Review</h3>
-        <form action="/listings/<%= listing._id %>/reviews" method="post" novalidate class="needs-validation">
-            <div class="mb-3">
-                <label for="comment" class="form-label">Comment</label>
-                <textarea name="review[comment]" id="comment" class="form-control" required></textarea>
-                <div class="text-danger mt-1" id="comment-error" style="display: none;">Please provide review</div>
-            </div>
-            <div class="mb-3">
-                <label for="rating" class="form-label">Rating: <span id="ratingValue">3</span>/5</label>
-                <input type="range" min="1" max="5" value="3" step="1" name="review[rating]" id="rating" class="form-range" required>
-                <div class="d-flex justify-content-between mt-1">
-                    <small>1</small>
-                    <small>2</small>
-                    <small>3</small>
-                    <small>4</small>
-                    <small>5</small>
+        <% if (currentUser) { %>
+            <h3> Leave a Review</h3>
+            <form action="/listings/<%= listing._id %>/reviews" method="post" novalidate class="needs-validation">
+                <div class="mb-3">
+                    <label for="comment" class="form-label">Comment</label>
+                    <textarea name="review[comment]" id="comment" class="form-control" required></textarea>
+                    <div class="text-danger mt-1" id="comment-error" style="display: none;">Please provide review</div>
                 </div>
-            </div>
-            <button type="submit" class="btn btn-dark">Submit</button>
-        </form>
-        <script>
-            const ratingInput = document.getElementById('rating');
-            const ratingValue = document.getElementById('ratingValue');
-            ratingInput.addEventListener('input', function() {
-                ratingValue.textContent = this.value;
-            });
-
-            // Form validation
-            const reviewForm = document.querySelector('form[action*="/reviews"]');
-            const commentField = document.getElementById('comment');
-            const commentError = document.getElementById('comment-error');
-            
-            reviewForm.addEventListener('submit', function(e) {
-                const commentValue = commentField.value.trim();
+                <div class="mb-3">
+                    <label for="rating" class="form-label">Rating: </label>
+                    <div class="star-rating" id="starRating">
+                        <% for(let i = 1; i <= 5; i++) { %>
+                            <i class="far fa-star star" data-rating="<%= i %>"></i>
+                        <% } %>
+                    </div>
+                    <input type="hidden" name="review[rating]" id="rating" value="3" required>
+                    <div class="text-danger mt-1" id="rating-error" style="display: none;">Please select a rating</div>
+                </div>
+                <button type="submit" class="btn btn-dark">Submit</button>
+            </form>
+            <script>
+                const stars = document.querySelectorAll('.star');
+                const ratingInput = document.getElementById('rating');
+                let currentRating = 3;
                 
-                if (!commentValue) {
-                    e.preventDefault();
-                    commentError.style.display = 'block';
-                    commentField.classList.add('is-invalid');
-                    commentField.focus();
-                    return false;
-                } else {
-                    commentError.style.display = 'none';
-                    commentField.classList.remove('is-invalid');
+                // Set initial rating
+                updateStars(currentRating);
+                
+                stars.forEach((star, index) => {
+                    star.addEventListener('click', () => {
+                        currentRating = index + 1;
+                        ratingInput.value = currentRating;
+                        updateStars(currentRating);
+                    });
+                    
+                    star.addEventListener('mouseenter', () => {
+                        updateStars(index + 1);
+                    });
+                });
+                
+                document.getElementById('starRating').addEventListener('mouseleave', () => {
+                    updateStars(currentRating);
+                });
+                
+                function updateStars(rating) {
+                    stars.forEach((star, index) => {
+                        if (index < rating) {
+                            star.classList.remove('far');
+                            star.classList.add('fas', 'text-warning');
+                        } else {
+                            star.classList.remove('fas', 'text-warning');
+                            star.classList.add('far');
+                        }
+                    });
                 }
-            });
-            
-            // Hide error when user starts typing
-            commentField.addEventListener('input', function() {
-                if (this.value.trim()) {
-                    commentError.style.display = 'none';
-                    this.classList.remove('is-invalid');
-                }
-            });
-        </script>
+
+                // Form validation
+                const reviewForm = document.querySelector('form[action*="/reviews"]');
+                const commentField = document.getElementById('comment');
+                const commentError = document.getElementById('comment-error');
+                const ratingError = document.getElementById('rating-error');
+                
+                reviewForm.addEventListener('submit', function(e) {
+                    const commentValue = commentField.value.trim();
+                    let hasError = false;
+                    
+                    if (!commentValue) {
+                        e.preventDefault();
+                        commentError.style.display = 'block';
+                        commentField.classList.add('is-invalid');
+                        hasError = true;
+                    } else {
+                        commentError.style.display = 'none';
+                        commentField.classList.remove('is-invalid');
+                    }
+                    
+                    if (!ratingInput.value || ratingInput.value < 1 || ratingInput.value > 5) {
+                        e.preventDefault();
+                        ratingError.style.display = 'block';
+                        hasError = true;
+                    } else {
+                        ratingError.style.display = 'none';
+                    }
+                    
+                    if (hasError) {
+                        return false;
+                    }
+                });
+                
+                // Hide errors when user starts typing
+                commentField.addEventListener('input', function() {
+                    if (this.value.trim()) {
+                        commentError.style.display = 'none';
+                        this.classList.remove('is-invalid');
+                    }
+                });
+            </script>
+        <% } else { %>
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i>
+                You must be <a href="/login" class="alert-link">logged in</a> to leave a review.
+            </div>
+        <% } %>
         <hr class="my-4">
         <div class="reviews-section">
             <h3 class="mb-4">
@@ -172,12 +220,28 @@
                                         <p class="card-text review-comment mb-3">
                                             "<%= review.comment %>"
                                         </p>
+                                        <% if (review.author) { %>
+                                            <p class="text-muted mb-2">
+                                                <small>
+                                                    <i class="fas fa-user"></i>
+                                                    <% if (review.author.username) { %>
+                                                        <%= review.author.username %>
+                                                    <% } else if (review.author.email) { %>
+                                                        <%= review.author.email %>
+                                                    <% } else { %>
+                                                        Anonymous
+                                                    <% } %>
+                                                </small>
+                                            </p>
+                                        <% } %>
                                         <div class="d-flex gap-2 mt-3 pt-3 border-top">
-                                            <form method="post" action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE" class="m-0">
-                                                <button class="btn btn-danger btn-sm" type="submit">
-                                                    <i class="fas fa-trash"></i> Delete
-                                                </button>
-                                            </form>
+                                            <% if (currentUser && (review.author && review.author.equals && review.author.equals(currentUser._id) || (listing.owner && listing.owner.equals && listing.owner.equals(currentUser._id)))) { %>
+                                                <form method="post" action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE" class="m-0">
+                                                    <button class="btn btn-danger btn-sm" type="submit">
+                                                        <i class="fas fa-trash"></i> Delete
+                                                    </button>
+                                                </form>
+                                            <% } %>
                                         </div>
                                     </div>
                                 </div>

@@ -10,6 +10,56 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+<style>
+.star-rating {
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.star-rating .star {
+    margin-right: 0.25rem;
+    transition: color 0.2s ease-in-out;
+}
+
+.star-rating .star:hover {
+    color: #ffc107 !important;
+}
+
+.review-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.review-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.listing-card {
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.listing-card:hover {
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.show-img {
+    height: 400px;
+    object-fit: cover;
+}
+
+.reviews-section .badge {
+    font-size: 0.8rem;
+}
+
+.review-rating {
+    font-size: 1.1rem;
+}
+
+.review-comment {
+    font-style: italic;
+    line-height: 1.6;
+}
+</style>
 </head>
 <body>
     <%- include("../includes/navbar.ejs") %>
