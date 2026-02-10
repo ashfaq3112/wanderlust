@@ -7,9 +7,7 @@ const ejsMate = require("ejs-mate");
 const ExpressError = require("./utils/ExpressError.js");
 const fs = require('fs');
 
-const envPath = path.join(__dirname, '..', '.env');
-
-require('dotenv').config({ path: envPath });
+require('dotenv').config();
 
 const dbUrl = process.env.DB_URL
 const listingRoutes = require("./routes/listing.js");
