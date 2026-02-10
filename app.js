@@ -9,7 +9,7 @@ const fs = require('fs');
 
 require('dotenv').config();
 
-const dbUrl = process.env.DB_URL
+const dbUrl = process.env.DB_URL || "mongodb://127.0.0.1:27017/wanderlust";
 const listingRoutes = require("./routes/listing.js");
 const reviewRoutes = require("./routes/review.js");
 const serverRoutes = require("./routes/server.js");
