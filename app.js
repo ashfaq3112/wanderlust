@@ -8,7 +8,7 @@ const ExpressError = require("./utils/ExpressError.js");
 const fs = require('fs');
 
 // Check if .env file exists
-const envPath = path.join(__dirname, '.env');
+const envPath = path.join(__dirname, '..', '.env');
 console.log('Looking for .env at:', envPath);
 console.log('.env file exists:', fs.existsSync(envPath));
 
@@ -23,8 +23,10 @@ require('dotenv').config({ path: envPath });
 console.log('CLOUD_NAME:', process.env.CLOUD_NAME);
 console.log('CLOUD_API_KEY:', process.env.CLOUD_API_KEY ? 'Found' : 'Not found');
 console.log('CLOUD_API_SECRET:', process.env.CLOUD_API_SECRET ? 'Found' : 'Not found');
+console.log('DB_URL:', process.env.DB_URL ? 'Found' : 'Not found');
 
-const MONGO_URL = process.env.MONGO_URL || "mongodb://127.0.0.1:27017/wanderlust";
+// const MONGO_URL = process.env.DB_URL || "mongodb://127.0.0.1:27017/wanderlust";
+const dbUrl = process.env.DB_URL
 const listingRoutes = require("./routes/listing.js");
 const reviewRoutes = require("./routes/review.js");
 const serverRoutes = require("./routes/server.js");
@@ -47,7 +49,7 @@ main()
 
     
 async function main(){
-    await mongoose.connect(MONGO_URL);
+    await mongoose.connect(dbUrl);
 }
 
 app.set("view engine","ejs");
@@ -121,9 +123,12 @@ app.use((req,res,next)=>{
 // Error handler - must be after all routes and 404 handler
 app.use((err,req,res,next)=>{
     let {statusCode = 500, message = "Something went wrong"} = err;
-    console.error("Error:", err);
-    console.error("Error message:", message);
-    console.error("Error stack:", err.stack);
+    // Only log non-404 errors to reduce console noise
+    if (statusCode !== 404) {
+        console.error("Error:", err);
+        console.error("Error message:", message);
+        console.error("Error stack:", err.stack);
+    }
     res.status(statusCode).render("listings/error.ejs", {err});
 });
 

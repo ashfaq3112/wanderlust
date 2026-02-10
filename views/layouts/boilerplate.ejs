@@ -336,7 +336,125 @@
     [data-theme="dark"] #map {
         border-color: var(--border-color) !important;
     }
-    </style>
+
+    /* Mobile Navbar Fixes */
+    @media (max-width: 767.98px) {
+        .navbar-collapse {
+            background-color: var(--navbar-bg) !important;
+            padding: 1rem 0;
+            border-top: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-nav {
+            width: 100%;
+        }
+        
+        .navbar-nav .nav-link {
+            padding: 0.75rem 1rem !important;
+            color: var(--text-primary) !important;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s ease;
+        }
+        
+        .navbar-nav .nav-link:hover {
+            background-color: rgba(0, 123, 255, 0.1) !important;
+            color: #007bff !important;
+        }
+        
+        [data-theme="dark"] .navbar-nav .nav-link:hover {
+            background-color: rgba(147, 197, 253, 0.1) !important;
+            color: #93c5fd !important;
+        }
+        
+        .navbar-nav .nav-link:last-child {
+            border-bottom: none;
+        }
+        
+        /* Fix for dark mode toggle in mobile */
+        .navbar-nav .form-check {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        /* Fix for user info in mobile */
+        .navbar-nav .nav-link.disabled {
+            padding: 0.75rem 1rem !important;
+            border-bottom: 1px solid var(--border-color);
+            opacity: 0.7;
+        }
+        
+        .navbar-nav .btn {
+            margin: 0.75rem 1rem;
+            width: calc(100% - 2rem);
+        }
+    }
+
+    /* Footer Social Links Styling */
+    .f-info-socials {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+
+    .social-link {
+        color: var(--text-primary) !important;
+        font-size: 1.5rem;
+        transition: color 0.3s ease, transform 0.2s ease;
+        text-decoration: none;
+    }
+
+    .social-link:hover {
+        color: #007bff !important;
+        transform: translateY(-2px);
+        text-decoration: none;
+    }
+
+    [data-theme="dark"] .social-link:hover {
+        color: #93c5fd !important;
+    }
+
+    /* Footer general styling */
+    footer {
+        background-color: var(--bg-secondary) !important;
+        border-top: 1px solid var(--border-color) !important;
+        color: var(--text-primary) !important;
+        padding: 2rem 0;
+        margin-top: auto;
+    }
+
+    .f-info {
+        text-align: center;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+
+    .f-info-brand {
+        margin: 1rem 0;
+        font-weight: 600;
+        color: var(--text-primary) !important;
+    }
+
+    .f-info-links {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-top: 1rem;
+    }
+
+    .f-info-links a {
+        color: var(--text-secondary) !important;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .f-info-links a:hover {
+        color: var(--text-primary) !important;
+        text-decoration: none;
+    }
+</style>
 </head>
 <body>
     <%- include("../includes/navbar.ejs") %>
