@@ -23,23 +23,33 @@ const User = require("./models/user.js");
 const listings = require("./models/listing.js");
 const reviews = require("./models/review.js");
 
-main()
-    .then(()=>{
-        console.log("connected to DB");
-    })
-    .catch((err)=>{
-        console.log(err);
-    });
-
-    
 async function main(){
     try {
-        await mongoose.connect(dbUrl);
+        await mongoose.connect(dbUrl, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            serverSelectionTimeoutMS: 5000 // 5 second timeout
+        });
         console.log("connected to DB");
     } catch (err) {
         console.log("DB connection failed, continuing without DB:", err.message);
     }
 }
+
+// Set timeout for database connection
+mongoose.connection.on('connected', () => {
+    console.log('Mongoose connected to MongoDB');
+});
+
+mongoose.connection.on('error', (err) => {
+    console.log('Mongoose connection error:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+    console.log('Mongoose disconnected');
+});
+
+main();
 
 app.set("view engine","ejs");
 app.set("views",path.join(__dirname,"views"));
