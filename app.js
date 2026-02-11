@@ -7,7 +7,7 @@ const ejsMate = require("ejs-mate");
 const ExpressError = require("./utils/ExpressError.js");
 const fs = require('fs');
 
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 const dbUrl = process.env.DB_URL || "mongodb://127.0.0.1:27017/wanderlust";
 const listingRoutes = require("./routes/listing.js");
