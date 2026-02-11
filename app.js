@@ -50,17 +50,18 @@ app.use(express.static(path.join(__dirname,"/public")));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 const sessionOptions = {
-    secret: process.env.SECRET_KEY,
+    secret: process.env.SECRET_KEY || "fallback-secret",
     resave: false,
     saveUninitialized: true,
     httpOnly:true,
-    store: MongoStore.create({
-        mongoUrl: dbUrl,
-        crypto: {
-            secret: process.env.SECRET_KEY
-        },
-        touchAfter: 24 * 3600,
-    })
+    // Temporarily disable MongoStore for testing
+    // store: MongoStore.create({
+    //     mongoUrl: dbUrl,
+    //     crypto: {
+    //         secret: process.env.SECRET_KEY
+    //     },
+    //     touchAfter: 24 * 3600,
+    // })
 };
 app.use(session(sessionOptions));
 app.use(flash());
