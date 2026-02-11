@@ -33,7 +33,12 @@ main()
 
     
 async function main(){
-    await mongoose.connect(dbUrl);
+    try {
+        await mongoose.connect(dbUrl);
+        console.log("connected to DB");
+    } catch (err) {
+        console.log("DB connection failed, continuing without DB:", err.message);
+    }
 }
 
 app.set("view engine","ejs");
